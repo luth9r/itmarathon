@@ -1,5 +1,6 @@
 services:
   front-angular:
+     image: luth9r/itmarathon-angular:latest
      build:
        context: ./frontend/angular
        dockerfile: Dockerfile
@@ -10,6 +11,7 @@ services:
        - app
 
   front-react:
+     image: luth9r/itmarathon-react:latest
      build:
        context: ./frontend/react
        dockerfile: Dockerfile
@@ -20,6 +22,7 @@ services:
        - app
 
   backend:
+     image: luth9r/itmarathon-backend:latest
      build:
        context: ./backend/ApiService
        dockerfile: Dockerfile
@@ -28,7 +31,7 @@ services:
         condition: service_healthy
      restart: always
      environment:
-       ASPNETCORE_ENVIRONMENT: Development
+       ASPNETCORE_ENVIRONMENT: Production
        ConnectionStrings__DbConnectionString: ${CONNECTIONSTRINGS__DBCONNECTIONSTRING}
      ports:
        - "8080:8080"

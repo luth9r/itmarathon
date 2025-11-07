@@ -44,9 +44,6 @@ export class UserService {
   }
   public deleteUser(userId: number): Observable<HttpResponse<void>> {
     const adminCode = this.#userCode();
-
-    console.log('Admin code being sent:', adminCode);
-  console.log('User ID being deleted:', userId);
   
     return this.#apiService.deleteUser(userId, adminCode).pipe(
       tap(({ status }) => {

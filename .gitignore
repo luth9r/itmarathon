@@ -7,6 +7,8 @@
 /.angular/
 .angular/
 
+.vs
+
 # Ignore variables files
 .terraform.lock.hcl
 *.tfvars
