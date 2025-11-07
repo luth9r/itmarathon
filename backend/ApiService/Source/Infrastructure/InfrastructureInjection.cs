@@ -42,6 +42,7 @@ namespace Epam.ItMarathon.ApiService.Infrastructure
         {
             services.AddScoped<IRoomRepository, RoomRepository>();
             services.AddScoped<IUserReadOnlyRepository, UserReadOnlyRepository>();
+            services.AddScoped<IUserRepository, UserRepository>();
         }
     }
 }

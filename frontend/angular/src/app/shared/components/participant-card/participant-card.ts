@@ -6,7 +6,7 @@ import {
   inject,
   input,
 } from '@angular/core';
-import { tap } from 'rxjs';
+import { catchError, finalize, of, tap } from 'rxjs';
 
 import { IconButton } from '../icon-button/icon-button';
 import {
@@ -25,6 +25,7 @@ import { ModalService } from '../../../core/services/modal';
 import { getPersonalInfo } from '../../../utils/get-personal-info';
 import { UserService } from '../../../room/services/user';
 import type { User } from '../../../app.models';
+import { DeleteConfirmationModal } from '../modal/delete-confirmation-modal/delete-confirmation-modal';
 
 @Component({
   selector: 'li[app-participant-card]',
@@ -58,6 +59,8 @@ export class ParticipantCard {
   public readonly ariaLabelCopy = AriaLabel.ParticipantLink;
   public readonly iconInfo = IconName.Info;
   public readonly ariaLabelInfo = AriaLabel.Info;
+  public readonly iconDelete = IconName.Delete;
+  public readonly ariaLabelDelete = AriaLabel.Delete;
 
   @HostBinding('tabindex') tab = 0;
   @HostBinding('class.list-row') rowClass = true;
@@ -121,6 +124,35 @@ export class ParticipantCard {
     }
   }
 
+  public onDeleteClick(): void {
+    const participant = this.participant();
+    const participantName = `${participant.firstName} ${participant.lastName}`;
+
+    this.#modalService.openWithResult(
+      DeleteConfirmationModal,
+      { participantName },
+      {
+        confirmDelete: () => this.#deleteParticipant(),
+        closeModal: () => this.#modalService.close(),
+      }
+    );
+  }
+
+  #deleteParticipant(): void {
+    const participant = this.participant();
+    
+    this.#userService
+      .deleteUser(participant.id)
+      .pipe(
+        tap(({ status }) => {
+          if (status === 204) {
+            this.#modalService.close();
+          }
+        })
+      )
+      .subscribe();
+  }
+
   #openModal(): void {
     const personalInfo = getPersonalInfo(this.participant());
     const roomLink = this.#urlService.getNavigationLinks(
@@ -142,9 +174,16 @@ export class ParticipantCard {
               }
             );
           }
-        })
-      )
-      .subscribe();
+        }),
+        catchError((error) => {
+        console.error('Failed to delete participant:', error);
+        return of(null);
+      }),
+      finalize(() => {
+        this.#modalService.close();
+      })
+    )
+    .subscribe();
   }
 
   #showPopup(): void {

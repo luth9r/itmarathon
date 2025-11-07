@@ -1,0 +1,26 @@
+<div class="modal-overlay" (click)="onCancel()">
+  <div class="modal-container" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <h2>Delete Participant</h2>
+      <app-icon-button
+        [iconName]="iconClose"
+        [ariaLabel]="ariaLabelClose"
+        (click)="onCancel()"
+      />
+    </div>
+
+    <div class="modal-content">
+      <p>Are you sure you want to remove <strong>{{ participantName() }}</strong> from the room?</p>
+      <p class="warning-text">This action cannot be undone.</p>
+    </div>
+
+    <div class="modal-actions">
+      <button class="btn btn-secondary" (click)="onCancel()">
+        Cancel
+      </button>
+      <button class="btn btn-danger" (click)="onConfirm()">
+        Delete
+      </button>
+    </div>
+  </div>
+</div>

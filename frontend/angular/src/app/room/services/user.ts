@@ -1,5 +1,5 @@
 import { computed, inject, Injectable, signal } from '@angular/core';
-import { Observable, tap } from 'rxjs';
+import { Observable, catchError, tap, throwError } from 'rxjs';
 import { HttpResponse } from '@angular/common/http';
 
 import { ApiService } from '../../core/services/api';
@@ -39,6 +39,30 @@ export class UserService {
         if (result?.body) {
           this.#users.set(result.body);
         }
+      })
+    );
+  }
+  public deleteUser(userId: number): Observable<HttpResponse<void>> {
+    const adminCode = this.#userCode();
+
+    console.log('Admin code being sent:', adminCode);
+  console.log('User ID being deleted:', userId);
+  
+    return this.#apiService.deleteUser(userId, adminCode).pipe(
+      tap(({ status }) => {
+        if (status === 204) {
+          const updatedUsers = this.#users().filter(user => user.id !== userId);
+          this.#users.set(updatedUsers);
+
+          this.#toasterService.show(
+            ToastMessage.SuccessDeleteUser,
+            MessageType.Success
+          );
+        }
+      }),
+      catchError((error) => {
+        this.#toasterService.show(ToastMessage.ErrorDeleteUser, MessageType.Error);
+        return throwError(() => error);
       })
     );
   }
